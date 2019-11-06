@@ -41,5 +41,16 @@ namespace ExampleAzureServiceBus.Controllers
             await topicClient.CloseAsync();
             return Accepted();
         }
+
+        [HttpPost]
+        [Route("cancelInRegion")]
+        public async Task<IActionResult> CancelRegion(CancelSaleRegionMessage cancelSaleRegionMessage)
+        {
+            var message = new Message(Encoding.UTF8.GetBytes(cancelSaleRegionMessage.Message));
+            message.CorrelationId = cancelSaleRegionMessage.Region;
+            await topicClient.SendAsync(message);
+            await topicClient.CloseAsync();
+            return Accepted();
+        }
     }
 }
