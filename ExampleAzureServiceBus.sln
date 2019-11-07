@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus", "ExampleAzureServiceBus\ExampleAzureServiceBus.csproj", "{DC66A5CF-5079-45F4-A4FE-C9FD8656CAFB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus.Consumer", "ExampleAzureServiceBus.Consumer\ExampleAzureServiceBus.Consumer.csproj", "{801E87AC-2CD0-4251-A253-3C99E9FF0A67}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus.Topic.Consumer", "ExampleAzureServiceBus.Topic.Consumer\ExampleAzureServiceBus.Topic.Consumer.csproj", "{E605C333-B70A-4C32-89AF-6127F329A326}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus.Topic.Consumer2", "ExampleAzureServiceBus.Topic.Consumer2\ExampleAzureServiceBus.Topic.Consumer2.csproj", "{3F314466-400D-497D-871A-668165781066}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleAzureServiceBus.Topic.Consumer.Filter", "ExampleAzureServiceBus.Consumer.Filter\ExampleAzureServiceBus.Topic.Consumer.Filter.csproj", "{4C933019-EB5C-4883-B07C-1F61448EEC6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus.Topic.Consumer.Filter", "ExampleAzureServiceBus.Consumer.Filter\ExampleAzureServiceBus.Topic.Consumer.Filter.csproj", "{4C933019-EB5C-4883-B07C-1F61448EEC6C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleAzureServiceBus.Queue.Consumer", "ExampleAzureServiceBus.Queue.Consumer\ExampleAzureServiceBus.Queue.Consumer.csproj", "{86139896-AF7C-4FA5-BCE2-D2BC5212840A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,6 @@ Global
 		{DC66A5CF-5079-45F4-A4FE-C9FD8656CAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC66A5CF-5079-45F4-A4FE-C9FD8656CAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC66A5CF-5079-45F4-A4FE-C9FD8656CAFB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{801E87AC-2CD0-4251-A253-3C99E9FF0A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{801E87AC-2CD0-4251-A253-3C99E9FF0A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{801E87AC-2CD0-4251-A253-3C99E9FF0A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{801E87AC-2CD0-4251-A253-3C99E9FF0A67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E605C333-B70A-4C32-89AF-6127F329A326}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E605C333-B70A-4C32-89AF-6127F329A326}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E605C333-B70A-4C32-89AF-6127F329A326}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{4C933019-EB5C-4883-B07C-1F61448EEC6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C933019-EB5C-4883-B07C-1F61448EEC6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C933019-EB5C-4883-B07C-1F61448EEC6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86139896-AF7C-4FA5-BCE2-D2BC5212840A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86139896-AF7C-4FA5-BCE2-D2BC5212840A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86139896-AF7C-4FA5-BCE2-D2BC5212840A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86139896-AF7C-4FA5-BCE2-D2BC5212840A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

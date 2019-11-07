@@ -6,12 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ExampleAzureServiceBus.Consumer
+namespace ExampleAzureServiceBus.Queue.Consumer
 {
     class Program
     {
         public static IQueueClient queueClient;
-        const string AzureServiceBusConnectionString = "Endpoint=sb://az203learning.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=CGkAvq6OG/eA462WU2cZqTcA8AJOthkaJhGBeK2rN1I=";
+        const string AzureServiceBusConnectionString = "<azure-service-bus-url>";
+
+        const string QueueName = "salesmessages";
 
         static void Main(string[] args)
         {
@@ -27,7 +29,7 @@ namespace ExampleAzureServiceBus.Consumer
                 AutoComplete = false
             };
 
-            queueClient = new QueueClient(AzureServiceBusConnectionString, "salesmessages");
+            queueClient = new QueueClient(AzureServiceBusConnectionString, QueueName);
 
             queueClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
 
@@ -38,7 +40,7 @@ namespace ExampleAzureServiceBus.Consumer
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            Console.WriteLine($"Received message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            Console.WriteLine($"Received message: MessageId:{message.MessageId} CorrelationId:{message.CorrelationId} SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
             await queueClient.CompleteAsync(message.SystemProperties.LockToken);
         }
 

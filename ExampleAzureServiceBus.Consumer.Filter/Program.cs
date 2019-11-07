@@ -9,10 +9,12 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
 {
     class Program
     {
-        public static ISubscriptionClient subscriptionClient;
-        const string AzureServiceBusConnectionString = "Endpoint=sb://az203learning.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=CGkAvq6OG/eA462WU2cZqTcA8AJOthkaJhGBeK2rN1I=";
-        const string TopicName = "salesperformancemessages";
-        const string SubscriptionName = "Europe";
+        public static ISubscriptionClient salesCancelSubscriptionClient;
+
+        const string AzureServiceBusConnectionString = "<azure-service-bus-url>";
+
+        const string TopicName = "salescancelmessages";
+        const string SubscriptionName = "salescancelsubscription";
 
         static void Main(string[] args)
         {
@@ -21,15 +23,17 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
 
         static async Task ReceiveAsync()
         {
-            subscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
+            salesCancelSubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
 
-            await AddSQLFilters();
+            //await AddSQLFilters();
+            await AddCorrelationFilter("chicago");
 
             RegisterMessageHandler();
 
             Console.ReadKey();
 
-            await subscriptionClient.CloseAsync();
+            await salesCancelSubscriptionClient.RemoveRuleAsync("CorrelationRule");
+            await salesCancelSubscriptionClient.CloseAsync();
         }
 
         static void RegisterMessageHandler()
@@ -37,17 +41,16 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
             var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
             {
                 MaxConcurrentCalls = 1,
-                AutoComplete = false
+                AutoComplete = false,
             };
 
-            subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
-
+            salesCancelSubscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
         }
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)
         {
-            Console.WriteLine($"Received sale performance message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
-            await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
+            Console.WriteLine($"Received sale cancel message: MessageId:{message.MessageId} CorrelationId:{message.CorrelationId} SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            await salesCancelSubscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
         }
 
         static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
@@ -64,24 +67,24 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
         #region Filters
         private static async Task AddSQLFilters()
         {
-            var rules = await subscriptionClient.GetRulesAsync();
+            var rules = await salesCancelSubscriptionClient.GetRulesAsync();
             if (!rules.Any(r => r.Name == "PriceGreaterThan100"))
             {
-                var filter = new SqlFilter("price > 100");
-                await subscriptionClient.AddRuleAsync("PriceGreaterThan100", filter);
+                var filter = new SqlFilter("Price > 100");
+                await salesCancelSubscriptionClient.AddRuleAsync("PriceGreaterThan100", filter);
             }
         }
 
         private static async Task AddBooleanFilters(bool _catch)
         {
-            var rules = await subscriptionClient.GetRulesAsync();
+            var rules = await salesCancelSubscriptionClient.GetRulesAsync();
 
             if (_catch)
             {
                 if (!rules.Any(r => r.Name == "CatchAll"))
                 {
                     var catchAllFilter = new TrueFilter();
-                    await subscriptionClient.AddRuleAsync("CatchAll", catchAllFilter);
+                    await salesCancelSubscriptionClient.AddRuleAsync("CatchAll", catchAllFilter);
                 }
             }
             else
@@ -89,20 +92,19 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
                 if (!rules.Any(r => r.Name == "CatchNothing"))
                 {
                     var catchNothingFilter = new FalseFilter();
-                    await subscriptionClient.AddRuleAsync("CatchNothing", catchNothingFilter);
+                    await salesCancelSubscriptionClient.AddRuleAsync("CatchNothing", catchNothingFilter);
                 }
             }
         }
 
         private static async Task AddCorrelationFilter(string region)
         {
-
-            var rules = await subscriptionClient.GetRulesAsync();
+            var rules = await salesCancelSubscriptionClient.GetRulesAsync();
 
             if (!rules.Any(r => r.Name == "CorrelationRule"))
             {
-                var correlationFilter = new CorrelationFilter("Region");
-                await subscriptionClient.AddRuleAsync("CorrelationRule", correlationFilter);
+                var correlationFilter = new CorrelationFilter(region);
+                await salesCancelSubscriptionClient.AddRuleAsync("CorrelationRule", correlationFilter);
             }
         }
         #endregion

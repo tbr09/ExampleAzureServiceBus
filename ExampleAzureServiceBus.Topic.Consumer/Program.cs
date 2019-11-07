@@ -8,10 +8,16 @@ namespace ExampleAzureServiceBus.Topic.Consumer
 {
     class Program
     {
-        public static ISubscriptionClient subscriptionClient;
-        const string AzureServiceBusConnectionString = "Endpoint=sb://az203learning.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=CGkAvq6OG/eA462WU2cZqTcA8AJOthkaJhGBeK2rN1I=";
-        const string TopicName = "salesperformancemessages";
+        public static ISubscriptionClient salesSubscriptionClient;
+        public static ISubscriptionClient deliverySubscriptionClient;
+
+        const string AzureServiceBusConnectionString = "<azure-service-bus-url>";
+
+        const string TopicName = "salesmessages";
         const string SubscriptionName = "Americas";
+
+        const string DeliveryTopicName = "deliverymessages";
+        const string DeliverySubscriptionName = "DeliverySubscription";
 
         static void Main(string[] args)
         {
@@ -20,16 +26,17 @@ namespace ExampleAzureServiceBus.Topic.Consumer
 
         static async Task ReceiveAsync()
         {
-            subscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
+            salesSubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
+            deliverySubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, DeliveryTopicName, DeliverySubscriptionName);
 
-            RegisterMessageHandler();
+            RegisterMessageHandlers();
 
             Console.ReadKey();
 
-            await subscriptionClient.CloseAsync();
+            await salesSubscriptionClient.CloseAsync();
         }
 
-        static void RegisterMessageHandler()
+        static void RegisterMessageHandlers()
         {
             var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
             {
@@ -37,14 +44,20 @@ namespace ExampleAzureServiceBus.Topic.Consumer
                 AutoComplete = false
             };
 
-            subscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
-
+            salesSubscriptionClient.RegisterMessageHandler(ProcessSaleMessagesAsync, messageHandlerOptions);
+            deliverySubscriptionClient.RegisterMessageHandler(ProcessDeliveryMessagesAsync, messageHandlerOptions);
         }
 
-        static async Task ProcessMessagesAsync(Message message, CancellationToken token)
+        static async Task ProcessDeliveryMessagesAsync(Message message, CancellationToken token)
         {
-            Console.WriteLine($"Received sale performance message: SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
-            await subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
+            Console.WriteLine($"Received sale performance message: MessageId:{message.MessageId} CorrelationId:{message.CorrelationId} SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            await deliverySubscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
+        }
+
+        static async Task ProcessSaleMessagesAsync(Message message, CancellationToken token)
+        {
+            Console.WriteLine($"Received sale performance message: MessageId:{message.MessageId} CorrelationId:{message.CorrelationId} SequenceNumber:{message.SystemProperties.SequenceNumber} Body:{Encoding.UTF8.GetString(message.Body)}");
+            await salesSubscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
         }
 
         static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
