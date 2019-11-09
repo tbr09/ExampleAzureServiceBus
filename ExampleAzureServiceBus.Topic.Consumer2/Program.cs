@@ -9,16 +9,11 @@ namespace ExampleAzureServiceBus.Topic.Consumer2
     class Program
     {
         public static ISubscriptionClient salesSubscriptionClient;
-        public static ISubscriptionClient salesCancelSubscriptionClient;
 
         const string AzureServiceBusConnectionString = "<azure-service-bus-url>";
 
-        const string TopicName = "salesmessages";
+        const string TopicName = "salescancelmessages";
         const string SubscriptionName = "Europe";
-
-        const string SaleCancelTopicName = "salescancelmessages";
-        const string SaleCancelSubscriptionName = "salescancelsubscription";
-
 
         static void Main(string[] args)
         {
@@ -28,7 +23,6 @@ namespace ExampleAzureServiceBus.Topic.Consumer2
         static async Task ReceiveAsync()
         {
             salesSubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
-            salesCancelSubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, SaleCancelTopicName, SaleCancelSubscriptionName);
 
             RegisterMessageHandler();
 
@@ -46,7 +40,6 @@ namespace ExampleAzureServiceBus.Topic.Consumer2
             };
 
             salesSubscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
-            salesCancelSubscriptionClient.RegisterMessageHandler(ProcessMessagesAsync, messageHandlerOptions);
         }
 
         static async Task ProcessMessagesAsync(Message message, CancellationToken token)

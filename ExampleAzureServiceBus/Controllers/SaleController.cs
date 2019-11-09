@@ -3,9 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -26,6 +23,7 @@ namespace ExampleAzureServiceBus.Controllers
             this.deliveryTopicClient = new TopicClient(configuration["AzureServiceBus:ConnectionString"], "deliverymessages");
         }
 
+        // ExampleAzureServiceBus.Queue.Consumer
         [HttpPost]
         public async Task<IActionResult> Post(SaleMessage saleMessage)
         {
@@ -35,19 +33,22 @@ namespace ExampleAzureServiceBus.Controllers
             return Accepted();
         }
 
+        // ExampleAzureServiceBus.Topic.Consumer
+        // ExampleAzureServiceBus.Topic.Consumer2
         [HttpPost]
         [Route("cancel")]
         public async Task<IActionResult> Cancel(CancelSaleMessage saleMessage)
         {
             var json = JsonConvert.SerializeObject(saleMessage);
             var message = new Message(Encoding.UTF8.GetBytes(json));
-            message.UserProperties["Price"] = saleMessage.Price;
+            message.UserProperties.Add("price", saleMessage.Price);
             message.Label = saleMessage.GetType().ToString();
             await salesCancelTopicClient.SendAsync(message);
             await salesCancelTopicClient.CloseAsync();
             return Accepted();
         }
 
+        // ExampleAzureServiceBus.Topic.Consumer.Filter
         [HttpPost]
         [Route("cancel/region")]
         public async Task<IActionResult> CancelRegion(CancelSaleRegionMessage cancelSaleRegionMessage)
@@ -60,6 +61,7 @@ namespace ExampleAzureServiceBus.Controllers
             return Accepted();
         }
 
+        // ExampleAzureServiceBus.Topic.Consumer
         [HttpPost]
         [Route("delivery")]
         public async Task<IActionResult> Delivery(DeliveryMessage deliveryMessage)

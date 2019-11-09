@@ -25,14 +25,14 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
         {
             salesCancelSubscriptionClient = new SubscriptionClient(AzureServiceBusConnectionString, TopicName, SubscriptionName);
 
-            //await AddSQLFilters();
+            await RemoveDefaultFilters(salesCancelSubscriptionClient);
+            //await AddSQLFilters(salesCancelSubscriptionClient);
             await AddCorrelationFilter("chicago");
 
             RegisterMessageHandler();
 
             Console.ReadKey();
 
-            await salesCancelSubscriptionClient.RemoveRuleAsync("CorrelationRule");
             await salesCancelSubscriptionClient.CloseAsync();
         }
 
@@ -65,13 +65,13 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
         }
 
         #region Filters
-        private static async Task AddSQLFilters()
+        private static async Task AddSQLFilters(ISubscriptionClient subscriptionClient)
         {
-            var rules = await salesCancelSubscriptionClient.GetRulesAsync();
+            var rules = await subscriptionClient.GetRulesAsync();
             if (!rules.Any(r => r.Name == "PriceGreaterThan100"))
             {
-                var filter = new SqlFilter("Price > 100");
-                await salesCancelSubscriptionClient.AddRuleAsync("PriceGreaterThan100", filter);
+                var filter = new SqlFilter("price > 100");
+                await subscriptionClient.AddRuleAsync("PriceGreaterThan100", filter);
             }
         }
 
@@ -105,6 +105,18 @@ namespace ExampleAzureServiceBus.Topic.Consumer.Filter
             {
                 var correlationFilter = new CorrelationFilter(region);
                 await salesCancelSubscriptionClient.AddRuleAsync("CorrelationRule", correlationFilter);
+            }
+        }
+
+        private static async Task RemoveDefaultFilters(ISubscriptionClient subscriptionClient)
+        {
+            var rules = await subscriptionClient.GetRulesAsync();
+            foreach (var rule in rules)
+            {
+                if (rule.Name == RuleDescription.DefaultRuleName)
+                {
+                    await subscriptionClient.RemoveRuleAsync(RuleDescription.DefaultRuleName);
+                }
             }
         }
         #endregion
